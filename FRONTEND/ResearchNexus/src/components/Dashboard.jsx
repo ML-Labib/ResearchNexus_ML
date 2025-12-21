@@ -1,5 +1,3 @@
-// src/components/Dashboard.jsx - Dashboard Component
-
 import { useState, useEffect } from 'react';
 import {
   createFolder,
@@ -10,10 +8,22 @@ import {
   uploadFile,
   getFilesByFolder,
   searchFiles,
-  deleteFile
+  deleteFile,
+  // Task & Progress APIs
+  assignTask,
+  getTasksByGroup,
+  updateProgress,
+  // Preview APIs
+  sendWorkForPreview,
+  getProfessorPreviews,
+  giveFeedback,
+  getStudentFeedback
 } from '../services/api';
+import '../styles/Dashboard.css';
+
 
 function Dashboard({ user, userType, onLogout }) {
+  // Existing state
   const [folders, setFolders] = useState([]);
   const [files, setFiles] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState(null);
@@ -37,20 +47,37 @@ function Dashboard({ user, userType, onLogout }) {
   
   const [availableGroups, setAvailableGroups] = useState([]);
 
+  // New state for Task/Progress/Feedback
+  const [activeTab, setActiveTab] = useState('files');
+  const [tasks, setTasks] = useState([]);
+  const [checkedTasks, setCheckedTasks] = useState({});
+  const [completedCount, setCompletedCount] = useState(0);
+  const [taskName, setTaskName] = useState('');
+  const [taskGroupId, setTaskGroupId] = useState('');
+  const [works, setWorks] = useState([]);
+  const [feedbackText, setFeedbackText] = useState({});
+  const [studentFeedbacks, setStudentFeedbacks] = useState([]);
+  const [workFile, setWorkFile] = useState(null);
+  const [professorEmail, setProfessorEmail] = useState('');
+
   useEffect(() => {
     loadFolders();
-    // Set available groups based on user type
     if (userType === 'supervisor') {
       setAvailableGroups(user.groups || []);
       setFolderGroupId(user.groups?.[0] || '');
       setFileGroupId(user.groups?.[0] || '');
+      setTaskGroupId(user.groups?.[0] || '');
+      loadProfessorWorks();
     } else {
       setAvailableGroups([user.Group_id]);
       setFolderGroupId(user.Group_id);
       setFileGroupId(user.Group_id);
+      loadStudentTasks();
+      loadStudentFeedbacks();
     }
   }, []);
 
+  // Existing functions
   const loadFolders = async () => {
     try {
       const response = await getFolders(user.Gmail);
@@ -123,7 +150,6 @@ function Dashboard({ user, userType, onLogout }) {
       
       setFolders(folderResponse.data);
       
-      // If files are found, display them
       if (fileResponse.data.length > 0) {
         setFiles(fileResponse.data);
         setSelectedFolder({ Name: 'Search Results', id: 'search' });
@@ -198,356 +224,524 @@ function Dashboard({ user, userType, onLogout }) {
     loadFiles(folder.id);
   };
 
+  // New functions for Task/Progress/Feedback
+  const loadStudentTasks = async () => {
+    try {
+      const response = await getTasksByGroup(user.Group_id);
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Error loading tasks:', error);
+    }
+  };
+
+  const handleCheckboxChange = async (taskId) => {
+    const newCheckedState = { ...checkedTasks, [taskId]: !checkedTasks[taskId] };
+    setCheckedTasks(newCheckedState);
+
+    const newCompletedCount = Object.values(newCheckedState).filter(Boolean).length;
+    setCompletedCount(newCompletedCount);
+
+    try {
+      await updateProgress({
+        group_id: parseInt(user.Group_id),
+        student_email: user.Gmail,
+        completed_task: newCompletedCount,
+      });
+    } catch (error) {
+      console.error('Error updating progress:', error);
+    }
+  };
+
+  const handleAssignTask = async (e) => {
+    e.preventDefault();
+    try {
+      await assignTask({
+        Task_name: taskName,
+        group_id: parseInt(taskGroupId),
+        professor_email: user.Gmail,
+      });
+      alert('Task assigned successfully!');
+      setTaskName('');
+    } catch (error) {
+      console.error('Error assigning task:', error);
+      alert('Error assigning task');
+    }
+  };
+
+  const loadProfessorWorks = async () => {
+    try {
+      const response = await getProfessorPreviews(user.Gmail);
+      setWorks(response.data);
+    } catch (error) {
+      console.error('Error loading works:', error);
+    }
+  };
+
+  const handleSubmitFeedback = async (workId) => {
+    try {
+      await giveFeedback({
+        id: workId,
+        feedback: feedbackText[workId],
+      });
+      alert('Feedback submitted successfully!');
+      loadProfessorWorks();
+      setFeedbackText({ ...feedbackText, [workId]: '' });
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('Error submitting feedback');
+    }
+  };
+
+  const loadStudentFeedbacks = async () => {
+    try {
+      const response = await getStudentFeedback(user.Gmail);
+      setStudentFeedbacks(response.data);
+    } catch (error) {
+      console.error('Error loading feedbacks:', error);
+    }
+  };
+
+  const handleSubmitWork = async (e) => {
+    e.preventDefault();
+    if (!workFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', workFile);
+    formData.append('student_email', user.Gmail);
+    formData.append('professor_email', professorEmail || user.SuperVisor);
+
+    try {
+      await sendWorkForPreview(formData);
+      alert('Work submitted successfully!');
+      setWorkFile(null);
+      e.target.reset();
+    } catch (error) {
+      console.error('Error submitting work:', error);
+      alert('Error submitting work');
+    }
+  };
+
+  const percentage = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
+
   return (
-    <div style={{ minHeight: '100vh', background: '#F0F3FA' }}>
+    <div className="dashboard-container">
       {/* Header */}
-      <div style={{
-        background: '#638ECB',
-        padding: '20px 40px',
-        color: 'white',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+      <div className="dashboard-header">
         <div>
-          <h2 style={{ margin: 0 }}>File Management System</h2>
-          <p style={{ margin: '5px 0 0 0', fontSize: '14px' }}>
-            Welcome, {user.Name} ({userType})
-          </p>
+          <h2>Research Management System</h2>
+          <p>Welcome, {user.Name} ({userType})</p>
         </div>
-        <button
-          onClick={onLogout}
-          style={{
-            padding: '10px 20px',
-            background: '#395886',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
-          }}
-        >
+        <button onClick={onLogout} className="logout-btn">
           Logout
         </button>
       </div>
 
-      {/* Search and Actions Bar */}
-      <div style={{
-        padding: '20px 40px',
-        background: '#D5DEEF',
-        display: 'flex',
-        gap: '15px',
-        alignItems: 'center'
-      }}>
-        <input
-          type="text"
-          placeholder="Search folders..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{
-            flex: 1,
-            padding: '12px',
-            border: '2px solid #B1C9EF',
-            borderRadius: '6px',
-            fontSize: '14px'
-          }}
-        />
+      {/* Navigation Tabs */}
+      <div className="nav-tabs">
         <button
-          onClick={handleSearch}
-          style={{
-            padding: '12px 24px',
-            background: '#8AAEE0',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
-          }}
+          onClick={() => setActiveTab('files')}
+          className={`nav-tab ${activeTab === 'files' ? 'active' : ''}`}
         >
-          Search
+          📁 Files & Folders
         </button>
-        <button
-          onClick={() => setShowCreateFolder(true)}
-          style={{
-            padding: '12px 24px',
-            background: '#638ECB',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
-          }}
-        >
-          New Folder
-        </button>
-        {selectedFolder && (
-          <button
-            onClick={() => setShowUploadFile(true)}
-            style={{
-              padding: '12px 24px',
-              background: '#395886',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            Upload File
-          </button>
+        {userType === 'supervisor' ? (
+          <>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`nav-tab ${activeTab === 'tasks' ? 'active' : ''}`}
+            >
+              📋 Assign Tasks
+            </button>
+            <button
+              onClick={() => setActiveTab('submissions')}
+              className={`nav-tab ${activeTab === 'submissions' ? 'active' : ''}`}
+            >
+              📝 Review Submissions
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`nav-tab ${activeTab === 'tasks' ? 'active' : ''}`}
+            >
+              ✓ My Tasks
+            </button>
+            <button
+              onClick={() => setActiveTab('submit')}
+              className={`nav-tab ${activeTab === 'submit' ? 'active' : ''}`}
+            >
+              📤 Submit Work
+            </button>
+            <button
+              onClick={() => setActiveTab('feedback')}
+              className={`nav-tab ${activeTab === 'feedback' ? 'active' : ''}`}
+            >
+              💬 View Feedback
+            </button>
+          </>
         )}
       </div>
 
-      {/* Main Content */}
-      <div style={{ display: 'flex', minHeight: 'calc(100vh - 140px)' }}>
-        {/* Folders List */}
-        <div style={{
-          width: '350px',
-          background: 'white',
-          padding: '20px',
-          borderRight: '2px solid #D5DEEF',
-          overflowY: 'auto'
-        }}>
-          <h3 style={{ color: '#395886', marginTop: 0 }}>Folders</h3>
-          {folders.map((folder) => (
-            <div
-              key={folder.id}
-              onClick={() => handleFolderClick(folder)}
-              style={{
-                padding: '15px',
-                background: selectedFolder?.id === folder.id ? '#B1C9EF' : '#F0F3FA',
-                marginBottom: '10px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'background 0.2s'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: '600', color: '#395886' }}>
-                    📁 {folder.Name}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#638ECB', marginTop: '5px' }}>
-                    {folder.File} files • {folder.Visibility ? '🌐 Public' : '🔒 Private'} • Group {folder.Group_id}
-                  </div>
-                </div>
-                {folder.ownerEmail === user.Gmail && (
-                  <div style={{ display: 'flex', gap: '5px' }}>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditFolder(folder);
-                      }}
-                      style={{
-                        padding: '5px 10px',
-                        background: '#8AAEE0',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px'
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteFolder(folder.id);
-                      }}
-                      style={{
-                        padding: '5px 10px',
-                        background: '#d9534f',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        fontSize: '12px'
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
-              </div>
+      {/* Main Content Area */}
+      <div className="main-content">
+        {/* FILES TAB */}
+        {activeTab === 'files' && (
+          <>
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Search folders..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              <button onClick={handleSearch} className="btn btn-search">
+                Search
+              </button>
+              <button onClick={() => setShowCreateFolder(true)} className="btn btn-primary">
+                New Folder
+              </button>
+              {selectedFolder && (
+                <button onClick={() => setShowUploadFile(true)} className="btn btn-secondary">
+                  Upload File
+                </button>
+              )}
             </div>
-          ))}
-        </div>
 
-        {/* Files List */}
-        <div style={{ flex: 1, padding: '20px 40px' }}>
-          {selectedFolder ? (
-            <>
-              <h3 style={{ color: '#395886' }}>
-                Files in "{selectedFolder.Name}"
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-                {files.map((file) => (
+            <div className="content-layout">
+              <div className="folders-section">
+                <h3>Folders</h3>
+                {folders.map((folder) => (
                   <div
-                    key={file.id}
-                    style={{
-                      padding: '20px',
-                      background: 'white',
-                      borderRadius: '8px',
-                      border: '2px solid #D5DEEF'
-                    }}
+                    key={folder.id}
+                    onClick={() => handleFolderClick(folder)}
+                    className={`folder-item ${selectedFolder?.id === folder.id ? 'active' : ''}`}
                   >
-                    <div style={{ fontSize: '32px', textAlign: 'center', marginBottom: '10px' }}>
-                      📄
-                    </div>
-                    <div style={{ fontWeight: '600', color: '#395886', marginBottom: '8px' }}>
-                      {file.Name}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#638ECB', marginBottom: '10px' }}>
-                      {file.Visibility ? '🌐 Public' : '🔒 Private'}
-                    </div>
-                    <div style={{ display: 'flex', gap: '5px' }}>
-                      <button
-                        onClick={() => handleDownloadFile(file.id)}
-                        style={{
-                          flex: 1,
-                          padding: '8px',
-                          background: '#8AAEE0',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          fontSize: '12px'
-                        }}
-                      >
-                        Download
-                      </button>
-                      {file.ownerEmail === user.Gmail && (
-                        <button
-                          onClick={() => handleDeleteFile(file.id)}
-                          style={{
-                            flex: 1,
-                            padding: '8px',
-                            background: '#d9534f',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                            fontSize: '12px'
-                          }}
-                        >
-                          Delete
-                        </button>
+                    <div className="folder-content">
+                      <div>
+                        <div className="folder-name">📁 {folder.Name}</div>
+                        <div className="folder-info">
+                          {folder.File} files • {folder.Visibility ? '🌐 Public' : '🔒 Private'} • Group {folder.Group_id}
+                        </div>
+                      </div>
+                      {folder.ownerEmail === user.Gmail && (
+                        <div className="folder-actions">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditFolder(folder);
+                            }}
+                            className="btn btn-primary btn-small"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteFolder(folder.id);
+                            }}
+                            className="btn btn-danger btn-small"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-            </>
-          ) : (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-              color: '#8AAEE0',
-              fontSize: '18px'
-            }}>
-              Select a folder to view files
+
+              <div className="files-section">
+                {selectedFolder ? (
+                  <>
+                    <h3>Files in "{selectedFolder.Name}"</h3>
+                    <div className="files-grid">
+                      {files.map((file) => (
+                        <div key={file.id} className="file-card">
+                          <div className="file-icon">📄</div>
+                          <div className="file-name">{file.Name}</div>
+                          <div className="file-visibility">
+                            {file.Visibility ? '🌐 Public' : '🔒 Private'}
+                          </div>
+                          <div className="file-actions">
+                            <button
+                              onClick={() => handleDownloadFile(file.id)}
+                              className="btn btn-primary btn-small"
+                              style={{ flex: 1 }}
+                            >
+                              Download
+                            </button>
+                            {file.ownerEmail === user.Gmail && (
+                              <button
+                                onClick={() => handleDeleteFile(file.id)}
+                                className="btn btn-danger btn-small"
+                                style={{ flex: 1 }}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="empty-state">
+                    Select a folder to view files
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
+          </>
+        )}
+
+        {/* STUDENT TASKS TAB */}
+        {activeTab === 'tasks' && userType === 'student' && (
+          <div className="task-section">
+            <h2>My Tasks</h2>
+            
+            <div className="progress-container">
+              <div className="progress-info">
+                <span className="progress-label">Weekly Progress</span>
+                <span className="progress-text">
+                  {completedCount} / {tasks.length} tasks completed
+                </span>
+              </div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${percentage}%` }}>
+                  <span className="progress-percentage">{Math.round(percentage)}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="task-list">
+              {tasks.length === 0 ? (
+                <p className="no-tasks">No tasks assigned yet</p>
+              ) : (
+                tasks.map((task) => (
+                  <div key={task._id} className="task-item">
+                    <label className="task-checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={checkedTasks[task._id] || false}
+                        onChange={() => handleCheckboxChange(task._id)}
+                        className="task-checkbox"
+                      />
+                      <span className={`task-name ${checkedTasks[task._id] ? 'completed' : ''}`}>
+                        {task.Task_name}
+                      </span>
+                    </label>
+                    <span className="task-date">
+                      {new Date(task.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* PROFESSOR ASSIGN TASKS TAB */}
+        {activeTab === 'tasks' && userType === 'supervisor' && (
+          <div className="form-section">
+            <h2>Assign New Task</h2>
+            <form onSubmit={handleAssignTask}>
+              <div className="form-group">
+                <label className="form-label">Task Name:</label>
+                <input
+                  type="text"
+                  value={taskName}
+                  onChange={(e) => setTaskName(e.target.value)}
+                  required
+                  placeholder="Enter task name"
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Select Group:</label>
+                <select
+                  value={taskGroupId}
+                  onChange={(e) => setTaskGroupId(e.target.value)}
+                  required
+                  className="form-select"
+                >
+                  {availableGroups.map(group => (
+                    <option key={group} value={group}>Group {group}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                Assign Task
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* STUDENT SUBMIT WORK TAB */}
+        {activeTab === 'submit' && userType === 'student' && (
+          <div className="form-section">
+            <h2>Submit Work for Preview</h2>
+            <form onSubmit={handleSubmitWork}>
+              <div className="form-group">
+                <label className="form-label">Professor Email (optional):</label>
+                <input
+                  type="email"
+                  value={professorEmail}
+                  onChange={(e) => setProfessorEmail(e.target.value)}
+                  placeholder={user.SuperVisor || "Enter professor email"}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Select File:</label>
+                <input
+                  type="file"
+                  onChange={(e) => setWorkFile(e.target.files[0])}
+                  required
+                  className="form-input"
+                />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                Send for Preview
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* PROFESSOR REVIEW SUBMISSIONS TAB */}
+        {activeTab === 'submissions' && userType === 'supervisor' && (
+          <div className="task-section">
+            <h2>Student Work Submissions</h2>
+            {works.length === 0 ? (
+              <p className="no-submissions">No submissions yet</p>
+            ) : (
+              <div className="work-list">
+                {works.map((work) => (
+                  <div key={work._id} className="work-card">
+                    <div className="work-header">
+                      <h3>From: {work.student_email}</h3>
+                      <span className="work-date">
+                        {new Date(work.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="work-file">
+                      <strong>File:</strong> {work.file}
+                    </div>
+                    {work.feedback && (
+                      <div className="existing-feedback">
+                        <strong>Previous Feedback:</strong>
+                        <p>{work.feedback}</p>
+                      </div>
+                    )}
+                    <div>
+                      <textarea
+                        placeholder="Enter your feedback here..."
+                        value={feedbackText[work._id] || ''}
+                        onChange={(e) => setFeedbackText({ ...feedbackText, [work._id]: e.target.value })}
+                        className="form-textarea"
+                      />
+                      <button
+                        onClick={() => handleSubmitFeedback(work._id)}
+                        disabled={!feedbackText[work._id]}
+                        className="btn btn-primary"
+                        style={{ marginTop: '10px' }}
+                      >
+                        Submit Feedback
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* STUDENT VIEW FEEDBACK TAB */}
+        {activeTab === 'feedback' && userType === 'student' && (
+          <div className="task-section">
+            <h2>My Feedback</h2>
+            {studentFeedbacks.length === 0 ? (
+              <p className="no-feedback">No feedback yet</p>
+            ) : (
+              <div className="feedback-list">
+                {studentFeedbacks.map((item) => (
+                  <div key={item._id} className="feedback-card">
+                    <div className="feedback-header">
+                      <span className="feedback-date">
+                        {new Date(item.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="feedback-file">
+                      <strong>Submitted File:</strong> {item.file}
+                    </div>
+                    <div className={`feedback-content ${item.feedback ? '' : 'pending'}`}>
+                      <strong>Feedback from Professor:</strong>
+                      {item.feedback ? (
+                        <p className="feedback-text">{item.feedback}</p>
+                      ) : (
+                        <p className="pending-text">Pending feedback...</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Create Folder Modal */}
+      {/* Modals */}
       {showCreateFolder && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            width: '400px'
-          }}>
-            <h3 style={{ color: '#395886', marginTop: 0 }}>Create New Folder</h3>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Create New Folder</h3>
             <form onSubmit={handleCreateFolder}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#395886' }}>
-                  Folder Name
-                </label>
+              <div className="form-group">
+                <label className="form-label">Folder Name</label>
                 <input
                   type="text"
                   value={folderName}
                   onChange={(e) => setFolderName(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #D5DEEF',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="form-input"
                 />
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', color: '#395886' }}>
+              <div className="form-group">
+                <label className="form-checkbox-label">
                   <input
                     type="checkbox"
                     checked={folderVisibility}
                     onChange={(e) => setFolderVisibility(e.target.checked)}
-                    style={{ marginRight: '8px' }}
+                    className="form-checkbox"
                   />
                   Public Folder
                 </label>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#395886' }}>
-                  Select Group
-                </label>
+              <div className="form-group">
+                <label className="form-label">Select Group</label>
                 <select
                   value={folderGroupId}
                   onChange={(e) => setFolderGroupId(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #D5DEEF',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="form-select"
                 >
                   {availableGroups.map(group => (
                     <option key={group} value={group}>Group {group}</option>
                   ))}
                 </select>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  type="submit"
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#638ECB',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
+              <div className="modal-actions">
+                <button type="submit" className="btn btn-primary">
                   Create
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowCreateFolder(false)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#D5DEEF',
-                    color: '#395886',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
+                  className="btn btn-cancel"
                 >
                   Cancel
                 </button>
@@ -557,121 +751,62 @@ function Dashboard({ user, userType, onLogout }) {
         </div>
       )}
 
-      {/* Upload File Modal */}
       {showUploadFile && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            width: '400px'
-          }}>
-            <h3 style={{ color: '#395886', marginTop: 0 }}>Upload File</h3>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Upload File</h3>
             <form onSubmit={handleUploadFile}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#395886' }}>
-                  File Name
-                </label>
+              <div className="form-group">
+                <label className="form-label">File Name</label>
                 <input
                   type="text"
                   value={fileName}
                   onChange={(e) => setFileName(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #D5DEEF',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="form-input"
                 />
               </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#395886' }}>
-                  Select File
-                </label>
+              <div className="form-group">
+                <label className="form-label">Select File</label>
                 <input
                   type="file"
                   onChange={(e) => setSelectedFile(e.target.files[0])}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #D5DEEF',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="form-input"
                 />
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', color: '#395886' }}>
+              <div className="form-group">
+                <label className="form-checkbox-label">
                   <input
                     type="checkbox"
                     checked={fileVisibility}
                     onChange={(e) => setFileVisibility(e.target.checked)}
-                    style={{ marginRight: '8px' }}
+                    className="form-checkbox"
                   />
                   Public File
                 </label>
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#395886' }}>
-                  Select Group
-                </label>
+              <div className="form-group">
+                <label className="form-label">Select Group</label>
                 <select
                   value={fileGroupId}
                   onChange={(e) => setFileGroupId(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #D5DEEF',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="form-select"
                 >
                   {availableGroups.map(group => (
                     <option key={group} value={group}>Group {group}</option>
                   ))}
                 </select>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  type="submit"
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#638ECB',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
+              <div className="modal-actions">
+                <button type="submit" className="btn btn-primary">
                   Upload
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowUploadFile(false)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#D5DEEF',
-                    color: '#395886',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
+                  className="btn btn-cancel"
                 >
                   Cancel
                 </button>
@@ -680,84 +815,41 @@ function Dashboard({ user, userType, onLogout }) {
           </div>
         </div>
       )}
-      
-      {/* Edit Folder Modal */}
+
       {showEditFolder && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            width: '400px'
-          }}>
-            <h3 style={{ color: '#395886', marginTop: 0 }}>Edit Folder</h3>
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Edit Folder</h3>
             <form onSubmit={handleUpdateFolder}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', color: '#395886' }}>
-                  Folder Name
-                </label>
+              <div className="form-group">
+                <label className="form-label">Folder Name</label>
                 <input
                   type="text"
                   value={editFolderName}
                   onChange={(e) => setEditFolderName(e.target.value)}
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px',
-                    border: '2px solid #D5DEEF',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
+                  className="form-input"
                 />
               </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', color: '#395886' }}>
+              <div className="form-group">
+                <label className="form-checkbox-label">
                   <input
                     type="checkbox"
                     checked={editFolderVisibility}
                     onChange={(e) => setEditFolderVisibility(e.target.checked)}
-                    style={{ marginRight: '8px' }}
+                    className="form-checkbox"
                   />
                   Public Folder
                 </label>
               </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  type="submit"
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#638ECB',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
-                >
+              <div className="modal-actions">
+                <button type="submit" className="btn btn-primary">
                   Update
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowEditFolder(false)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#D5DEEF',
-                    color: '#395886',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer'
-                  }}
+                  className="btn btn-cancel"
                 >
                   Cancel
                 </button>

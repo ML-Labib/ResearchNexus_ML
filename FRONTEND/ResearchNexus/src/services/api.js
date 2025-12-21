@@ -66,4 +66,46 @@ export const deleteFile = (id) => {
   return api.delete(`/files/${id}`);
 };
 
+
+// ============= NEW TASK & PROGRESS APIs =============
+
+// Task APIs
+export const assignTask = (taskData) => 
+  api.post('/tasks/assign', taskData);
+
+export const getTasksByGroup = (groupId) => 
+  api.get(`/tasks/group/${groupId}`);
+
+// Progress APIs
+export const updateProgress = (progressData) => 
+  api.post('/progress/update', progressData);
+
+export const getProgress = (groupId, studentEmail) => 
+  api.get(`/progress/${groupId}/${studentEmail}`);
+
+// ============= NEW PREVIEW/FEEDBACK APIs =============
+
+// Preview APIs
+export const sendWorkForPreview = (formData) => 
+  api.post('/preview/send', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+
+export const getProfessorPreviews = (professorEmail) => 
+  api.get(`/preview/professor/${professorEmail}`);
+
+export const giveFeedback = (feedbackData) => 
+  api.post('/preview/feedback', feedbackData);
+
+export const getStudentFeedback = (studentEmail) => 
+  api.get(`/preview/student/${studentEmail}`);
+
+// ============= AUTH APIs (if needed) =============
+
+export const loginStudent = (credentials) => 
+  api.post('/auth/student/login', credentials);
+
+export const loginSupervisor = (credentials) => 
+  api.post('/auth/supervisor/login', credentials);
+
 export default api;

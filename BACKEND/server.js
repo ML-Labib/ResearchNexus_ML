@@ -19,11 +19,17 @@ connectDB();
 const authRoutes = require('./routes/authRoutes');
 const folderRoutes = require('./routes/folderRoutes');
 const fileRoutes = require('./routes/fileRoutes');
+const taskRoutes = require('./routes/taskRoute');
+const progressRoutes = require('./routes/progressRoute');
+const previewRoutes = require('./routes/previewRoute');
 
 // Use Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/progress', progressRoutes);
+app.use('/api/preview', previewRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

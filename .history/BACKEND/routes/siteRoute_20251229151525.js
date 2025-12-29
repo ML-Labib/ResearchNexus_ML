@@ -1,9 +1,0 @@
-const express = require('express');
-const router = express.Router();
-const folderController = require('../controllers/siteController');
-
-router.post("/add", folderController.addSite);
-router.get("/user/:Gmail", folderController.getSiteByGmail);
-// notice the /:id part -> this acts as a variable
-router.delete('/delete-site/:id', siteController.deleteSite); 
-module.exports = router;

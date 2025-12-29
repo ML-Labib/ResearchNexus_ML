@@ -1,0 +1,13 @@
+# Secrets
+.env
+*.env
+
+# VS Code history
+.history/
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/

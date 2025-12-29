@@ -104,7 +104,7 @@ function Dashboard({ user, userType }) {
   const [previewFileUrl, setPreviewFileUrl] = useState('');
   const [previewFileName, setPreviewFileName] = useState('');
 
-  useEffect(() => {
+  useEffect(() => { //shagupta
     const fetchFavorites = async () => {
       try {
         const response = await fetch(`http://localhost:9222/api/favorites/${user.Gmail}`);
@@ -115,7 +115,7 @@ function Dashboard({ user, userType }) {
       }
     };
     fetchFavorites();
-    loadFolders();
+    loadFolders(); //
     if (userType === 'supervisor') {
       setAvailableGroups(user.groups || []);
       setFolderGroupId(user.groups?.[0] || '');
@@ -131,7 +131,7 @@ function Dashboard({ user, userType }) {
     }
   }, []);
 
-  const toggleFavorite = async (fileId) => {
+  const toggleFavorite = async (fileId) => { //s
     try {
       await fetch('http://localhost:9222/api/favorites/toggle', {
         method: 'POST',
@@ -145,7 +145,7 @@ function Dashboard({ user, userType }) {
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
-  };
+  };//
 
   const loadFolders = async () => {
     try {
@@ -408,8 +408,7 @@ function Dashboard({ user, userType }) {
     }
   };
 
-  // ... (all other existing functions like handleCreateFolder, handleUploadFile, handleSearch, handleDeleteFolder, handleEditFolder, handleUpdateFolder, handleDownloadFile, handleDeleteFile, handleViewPreviewFile, handleDownloadPreviewFile, loadStudentTasks, handleCheckboxChange, handleAssignTask, loadProfessorWorks, handleSubmitFeedback, loadStudentFeedbacks, handleSubmitWork remain exactly the same)
-
+  
   const percentage = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
 
   return (
@@ -585,7 +584,7 @@ function Dashboard({ user, userType }) {
                             {file.Visibility ? '🌐 Public' : '🔒 Private'}
                           </div>
                           <div className="file-actions">
-                            <button
+                            <button //shagupta
                               onClick={() => toggleFavorite(file.id)}
                               className="btn btn-secondary btn-small"
                             >

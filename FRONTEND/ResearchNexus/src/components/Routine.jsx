@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "../styles/Routine.css";
+
 
 const Routine = () => {
   const [routines, setRoutines] = useState([]);
@@ -81,12 +83,16 @@ const Routine = () => {
   };
 
   return (
-    <div style={{ padding: "30px" }}>
+    <div className="routine-container">
+      <div className="routine-card">
+
       <h2>My Routine</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="routine-error">{error}</p>}
 
-      <form onSubmit={addTask}>
+
+      <form className="routine-form" onSubmit={addTask}>
+
         <input
           type="text"
           placeholder="Task title"
@@ -117,11 +123,14 @@ const Routine = () => {
       </form>
 
       {routines.length === 0 ? (
-        <p>No pending tasks</p>
+        <p className="routine-empty">No pending tasks</p>
+
       ) : (
-        <ul>
+        <ul className="routine-list">
+
           {routines.map(task => (
-  <li key={task._id} style={{ marginBottom: "15px" }}>
+  <li key={task._id} className="routine-item">
+
     <div>
       <strong>{task.title}</strong>
       <p style={{ margin: "4px 0", color: "#555" }}>
@@ -133,16 +142,18 @@ const Routine = () => {
     </div>
 
     <button
-      style={{ marginTop: "5px" }}
-      onClick={() => completeTask(task._id)}
-    >
-      Done
-    </button>
+  className="routine-done-btn"
+  onClick={() => completeTask(task._id)}
+>
+  Done
+</button>
+
   </li>
 ))}
 
         </ul>
       )}
+    </div>
     </div>
   );
 };

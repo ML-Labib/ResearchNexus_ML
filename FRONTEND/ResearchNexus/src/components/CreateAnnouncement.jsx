@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { createAnnouncement } from "../services/api";
-
+import "../styles/CreateAnnouncement.css";
 const CreateAnnouncement = () => {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -26,9 +26,11 @@ const CreateAnnouncement = () => {
   };
 
   return (
-    <div className="create-announcement">
+  <div className="create-announcement-container">
+    <div className="create-announcement-card">
       <h2>Create Announcement</h2>
-      <form onSubmit={handleSubmit}>
+
+      <form className="create-announcement-form" onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Title"
@@ -36,22 +38,27 @@ const CreateAnnouncement = () => {
           onChange={(e) => setTitle(e.target.value)}
           required
         />
+
         <textarea
           placeholder="Message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
         />
+
         <input
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           required
         />
+
         <button type="submit">Create</button>
       </form>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default CreateAnnouncement;

@@ -1,62 +1,51 @@
 /* MAIN CONTAINER */
 .dashboard-container {
-    width: 100vw; 
-    background: #385992;
-    min-height: 100vh;
-    color: white;
-    font-family: "Georgia", serif;
+  width: 100vw;
+  background: #84a4da;
+  min-height: 100vh;
+  color: rgb(236, 238, 240);
+  font-family: "Georgia", serif;
 }
 
 /* TOP HEADER */
 .top-header {
-    
   display: flex;
   justify-content: space-between;
   padding: 30px;
   background: #587596;
   height: 170px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .left-section h1 {
   font-size: 42px;
   font-weight: 700;
   margin: 0;
-  font-family: "Georgia", serif;
 }
 
 .left-section h2 {
-    color: #ffffff;
   font-size: 28px;
   margin: 10px 0;
   font-weight: 600;
-  font-family: "Georgia", serif;
 }
 
 .left-section p {
-    color: #ffffff;
   margin-top: 10px;
   font-size: 14px;
-  font-family: "Georgia", serif;
 }
 
 .brain-img {
   width: 250px;
   height: 250px;
-  margin-right: 0px;
   margin-left: 120px;
   margin-top: -50px;
 }
 
 /* NAVIGATION BAR */
 .dashboard-nav {
-    
-    
-  background: transparent;
   padding: 10px;
   text-align: right;
   margin-right: 40px;
-  
 }
 
 .dashboard-nav ul {
@@ -65,47 +54,72 @@
   gap: 30px;
   justify-content: flex-end;
   font-size: 14px;
-  cursor: pointer;
-  font-family: "Georgia", serif;
 }
 
-.dashboard-nav ul li:hover {
-  text-decoration: underline;
-}
-.dashboard-nav ul li a {
-  color: white;            /* Change to any color you want */
-  text-decoration: none;   /* Remove underline */
-  font-family: "Georgia", serif;
-}
-
-.dashboard-nav ul li a:hover {
-  color: #000000;          /* Hover color */
-  text-decoration: underline;
-}
-
-
-/* DEADLINE SECTION */
-.deadline-section {
-  display: flex;
-  justify-content: flex-end;
-  margin: 20px 40px;
-  align-items: center;
-  gap: 8px;
-}
-
-.deadline-btn {
-  background: #e0e0e0;
-  color: #000;
-  padding: 8px 18px;
-  border-radius: 20px;
+/* NAV COLORS */
+.dashboard-nav ul li a,
+.dashboard-nav ul li button {
+  background: none;
   border: none;
-  cursor: pointer;
+  color: #1e90ff;
   font-size: 14px;
   font-family: "Georgia", serif;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
 }
 
+.dashboard-nav ul li a:hover,
+.dashboard-nav ul li button:hover {
+  color: #000000;
+  text-decoration: underline;
+}
+
+.dashboard-nav ul li button:focus {
+  outline: none;
+}
+
+/* ========================= */
+/* DEADLINE ALERT BAR (NEW) */
+/* ========================= */
+
+.deadline-section {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 25px 40px;
+  gap: 12px;
+}
+
+/* Bell icon */
 .bell-icon {
-  font-size: 18px;
+  font-size: 20px;
+}
+
+/* Long notification bar */
+.announcement-list {
+  background: #1f3b64;              /* 🔵 CHANGE COLOR HERE */
+  border-radius: 30px;
+  padding: 10px 20px;
+  width: 520px;                     /* LONG BAR */
+  max-height: 60px;
+  overflow-x: auto;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+}
+
+/* Each announcement */
+.announcement-item {
+  display: inline-block;
+  margin-right: 40px;
+  font-size: 20px;
+  color: #ffffff;
+}
+
+/* Days left text */
+.announcement-item small {
+  color: #ffdd57;
+  font-weight: bold;
 }
 
 /* FEATURE SECTION */
@@ -118,12 +132,11 @@
 
 .feature-card {
   width: 270px;
-  background: #A9B9D4;
+  background: #a9b9d4;
   padding: 25px;
   border-radius: 12px;
   text-align: center;
   color: black;
-  font-family: "Georgia", serif;
 }
 
 .feature-card .icon {
@@ -149,9 +162,8 @@
   gap: 40px;
   margin-top: 80px;
   padding: 20px;
-  color: #dcdcdc;
+  color: #893abe;
   font-size: 14px;
-  font-family: "Georgia", serif;
 }
 
 .dashboard-footer p:hover {

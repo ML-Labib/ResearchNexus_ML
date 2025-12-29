@@ -69,10 +69,7 @@ const MainDashboard = ({ user, userType, onLogout }) => {
       <nav className="dashboard-nav">
         <ul>
           <li>
-            <button className="btn-profile" onClick={() => navigate("/sites")}>
-    Search & Discover
-</button>
-  
+            <Link to="/search">Search & Discover</Link>
           </li>
           <li>
             <Link to="/tools">Research Tool</Link>

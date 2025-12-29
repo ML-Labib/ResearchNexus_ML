@@ -10,7 +10,6 @@ import Routine from './components/Routine';
 import CreateAnnouncement from './components/CreateAnnouncement';
 import SubAnnouncement from './components/SubAnnouncement';
 import PlanCycle from './components/PlanCycle';
-import SitesPage from './components/SitesPage';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -129,13 +128,7 @@ function App() {
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
-        <Route
-        path="/sites"
-        element={user ? <SitesPage user={user} /> : <Navigate to="/login" replace />}
-      />
-
     </Routes>
-    
   );
 }
 

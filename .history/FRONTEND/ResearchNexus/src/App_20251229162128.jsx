@@ -129,13 +129,11 @@ function App() {
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
-        <Route
-        path="/sites"
-        element={user ? <SitesPage user={user} /> : <Navigate to="/login" replace />}
-      />
-
     </Routes>
-    
+    <Route
+  path="/sites"
+  element={user ? <SitesPage user={user} /> : <Navigate to="/login" replace />}
+/>
   );
 }
 

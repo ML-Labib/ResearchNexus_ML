@@ -35,15 +35,9 @@ const progressRoutes = require('./routes/progressRoute');
 const previewRoutes = require('./routes/previewRoute');
 const announcementRoutes = require('./routes/announcementRoutes');
 const subAnnouncementRoutes = require('./routes/subannouncementRoutes');
-const siteRoutes = require('./routes/siteRoute');
-
-
 // Use Routes
 app.use('/api/profile', profileRoutes);
 app.use('/api/favorites', favoriteRoutes);
-
-//ML
-app.use("/api/sites", siteRoutes);
 
 //shagupta
 

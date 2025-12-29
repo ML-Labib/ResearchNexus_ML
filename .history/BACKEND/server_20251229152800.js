@@ -37,13 +37,10 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const subAnnouncementRoutes = require('./routes/subannouncementRoutes');
 const siteRoutes = require('./routes/siteRoute');
 
-
+app.use("/api/sites", siteRoutes);
 // Use Routes
 app.use('/api/profile', profileRoutes);
 app.use('/api/favorites', favoriteRoutes);
-
-//ML
-app.use("/api/sites", siteRoutes);
 
 //shagupta
 

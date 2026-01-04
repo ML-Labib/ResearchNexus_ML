@@ -35,6 +35,9 @@ function App() {
       }
     }
 
+
+
+
     setLoaded(true);
   }, []);
 
@@ -72,6 +75,8 @@ function App() {
         element={!user ? <Register /> : <Navigate to="/maindashboard" replace />}
       />
 
+
+
       {/* Dashboards */}
       <Route
         path="/maindashboard"
@@ -83,6 +88,10 @@ function App() {
           )
         }
       />
+
+
+
+
 
       <Route
         path="/files"
@@ -99,6 +108,11 @@ function App() {
         path="/profile"
         element={user ? <Profile user={user} userType={userType} /> : <Navigate to="/login" replace />}
       />
+
+
+
+
+
 
       <Route
         path="/notepad"
@@ -126,10 +140,16 @@ function App() {
         )}
       />
 
+
+
+
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
+
+
+
 
 export default App;

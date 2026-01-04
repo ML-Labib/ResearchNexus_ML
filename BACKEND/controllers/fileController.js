@@ -53,7 +53,8 @@ exports.uploadFile = async (req, res) => {
       id: newId,
       Visibility,
       filePath,
-      ownerEmail
+      ownerEmail,
+      isTrashed: false
     });
 
     await newFile.save();
@@ -74,67 +75,108 @@ exports.uploadFile = async (req, res) => {
 exports.getFilesByFolder = async (req, res) => {
   try {
     const { folderId, ownerEmail } = req.query;
-
     const files = await File.find({
       Folder: parseInt(folderId),
-      $or: [
-        { ownerEmail: ownerEmail },
-        { Visibility: true }
-      ]
+      isTrashed: false,
+      $or: [{ ownerEmail: ownerEmail }, { Visibility: true }]
     });
-
     res.status(200).json(files);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
 // Search Files
 exports.searchFiles = async (req, res) => {
   try {
     const { query, ownerEmail } = req.query;
-
     const files = await File.find({
       Name: { $regex: query, $options: 'i' },
-      $or: [
-        { ownerEmail: ownerEmail },
-        { Visibility: true }
-      ]
+      isTrashed: false,
+      $or: [{ ownerEmail: ownerEmail }, { Visibility: true }]
     });
-
     res.status(200).json(files);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
 // Delete File
-exports.deleteFile = async (req, res) => {
+// exports.deleteFile = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const file = await File.findOne({ id: parseInt(id) });
+//     if (!file) return res.status(404).json({ message: 'File not found' });
+
+//     // Delete file from storage
+//     if (fs.existsSync(file.filePath)) {
+//       fs.unlinkSync(file.filePath);
+//     }
+
+//     // Decrement folder file count
+//     await Folder.findOneAndUpdate(
+//       { id: file.Folder },
+//       { $inc: { File: -1 } }
+//     );
+
+//     // Delete file record
+//     await File.findOneAndDelete({ id: parseInt(id) });
+
+//     res.status(200).json({ message: 'File deleted' });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+// Export Multer upload middleware
+// exports.upload = upload;
+
+
+// --- RECYCLE BIN LOGIC ---
+
+// Get Trashed Files
+exports.getTrashedFiles = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const files = await File.find({ ownerEmail: email, isTrashed: true });
+    res.json(files);
+  } catch (error) { res.status(500).json({ message: error.message }); }
+};
+
+// Move to Trash
+exports.moveToTrash = async (req, res) => {
   try {
     const { id } = req.params;
+    const file = await File.findOneAndUpdate({ id: parseInt(id) }, { isTrashed: true });
+    if(file) await Folder.findOneAndUpdate({ id: file.Folder }, { $inc: { File: -1 } }); // Decrement folder count
+    res.json({ message: "File moved to recycle bin" });
+  } catch (error) { res.status(500).json({ message: error.message }); }
+};
 
+// Restore File
+exports.restoreFile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const file = await File.findOneAndUpdate({ id: parseInt(id) }, { isTrashed: false });
+    if(file) await Folder.findOneAndUpdate({ id: file.Folder }, { $inc: { File: 1 } }); // Increment folder count
+    res.json({ message: "File restored" });
+  } catch (error) { res.status(500).json({ message: error.message }); }
+};
+
+// Delete Permanently
+exports.deletePermanently = async (req, res) => {
+  try {
+    const { id } = req.params;
     const file = await File.findOne({ id: parseInt(id) });
     if (!file) return res.status(404).json({ message: 'File not found' });
 
-    // Delete file from storage
-    if (fs.existsSync(file.filePath)) {
-      fs.unlinkSync(file.filePath);
+    if (fs.existsSync(file.filePath)) fs.unlinkSync(file.filePath);
+    
+    // Only adjust count if it wasn't already trash (prevent double counting)
+    if (!file.isTrashed) {
+        await Folder.findOneAndUpdate({ id: file.Folder }, { $inc: { File: -1 } });
     }
-
-    // Decrement folder file count
-    await Folder.findOneAndUpdate(
-      { id: file.Folder },
-      { $inc: { File: -1 } }
-    );
-
-    // Delete file record
+    
     await File.findOneAndDelete({ id: parseInt(id) });
-
-    res.status(200).json({ message: 'File deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+    res.status(200).json({ message: 'File deleted permanently' });
+  } catch (error) { res.status(500).json({ message: error.message }); }
 };
 
-// Export Multer upload middleware
 exports.upload = upload;

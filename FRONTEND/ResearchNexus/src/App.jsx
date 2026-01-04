@@ -10,6 +10,8 @@ import Routine from './components/Routine';
 import CreateAnnouncement from './components/CreateAnnouncement';
 import SubAnnouncement from './components/SubAnnouncement';
 import PlanCycle from './components/PlanCycle';
+import SitesPage from './components/SitesPage';
+import ResearchTool from './components/ResearchTool';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -84,6 +86,11 @@ function App() {
         }
       />
 
+        <Route 
+  path="/tools" 
+  element={user ? <ResearchTool /> : <Navigate to="/login" />} 
+/>
+
       <Route
         path="/files"
         element={
@@ -126,9 +133,17 @@ function App() {
         )}
       />
 
+
+
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+        path="/sites"
+        element={user ? <SitesPage user={user} /> : <Navigate to="/login" replace />}
+      />
+
     </Routes>
+    
   );
 }
 

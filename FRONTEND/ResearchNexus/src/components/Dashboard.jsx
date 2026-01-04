@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SubAnnouncement from './SubAnnouncement';
 import PlanCycle from './PlanCycle';
-
+import RecycleBinModal from './RecycleBinModal';
 import {
   createFolder,
   getFolders,
@@ -22,6 +22,9 @@ import {
   getProfessorPreviews,
   giveFeedback,
   getStudentFeedback,
+
+  moveFolderToTrash, // Import this
+  moveFileToTrash    // Import this
 } from '../services/api';
 import '../styles/Dashboard.css';
 
@@ -72,6 +75,9 @@ function Dashboard({ user, userType }) {
   const [showUploadFile, setShowUploadFile] = useState(false);
   const [showEditFolder, setShowEditFolder] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  //ML
+  const [showRecycleBin, setShowRecycleBin] = useState(false);
 
   const [folderName, setFolderName] = useState('');
   const [folderVisibility, setFolderVisibility] = useState(true);
@@ -146,6 +152,21 @@ function Dashboard({ user, userType }) {
       console.error('Error toggling favorite:', error);
     }
   };//
+
+  //ML
+    // 3. ADD THIS REFRESH FUNCTION
+  const handleRestoreFromBin = () => {
+    // Reload the folder list
+    loadFolders(); 
+    
+    // If we are currently inside a folder, reload its files too
+    if (selectedFolder) {
+        // Assuming you have a function to load files. 
+        // If not, you can copy the logic you use in `handleFolderClick`
+        loadFiles(selectedFolder.id); 
+    }
+  };
+
 
   const loadFolders = async () => {
     try {
@@ -230,15 +251,32 @@ function Dashboard({ user, userType }) {
     }
   };
 
-  const handleDeleteFolder = async (id) => {
-    if (window.confirm('Delete this folder?')) {
+  // const handleDeleteFolder = async (id) => {
+  //   if (window.confirm('Delete this folder?')) {
+  //     try {
+  //       await deleteFolder(id);
+  //       loadFolders();
+  //       setSelectedFolder(null);
+  //       setFiles([]);
+  //     } catch (error) {
+  //       console.error('Error deleting folder:', error);
+  //     }
+  //   }
+  // };
+
+  // Make sure axios is imported at the top: import axios from 'axios';
+
+ const handleDeleteFolder = async (id) => {
+    if (window.confirm('Move this folder to Recycle Bin?')) {
       try {
-        await deleteFolder(id);
+        // USE THE SERVICE FUNCTION
+        await moveFolderToTrash(id); 
+        
         loadFolders();
         setSelectedFolder(null);
         setFiles([]);
       } catch (error) {
-        console.error('Error deleting folder:', error);
+        console.error('Error moving folder to trash:', error);
       }
     }
   };
@@ -288,17 +326,35 @@ function Dashboard({ user, userType }) {
     setShowFilePreview(true);
   };
 
-  const handleDeleteFile = async (id) => {
-    if (window.confirm('Delete this file?')) {
+  // const handleDeleteFile = async (id) => {
+  //   if (window.confirm('Delete this file?')) {
+  //     try {
+  //       await deleteFile(id);
+  //       loadFiles(selectedFolder.id);
+  //       loadFolders();
+  //     } catch (error) {
+  //       console.error('Error deleting file:', error);
+  //     }
+  //   }
+  // };
+
+     const handleDeleteFile = async (id) => {
+    if (window.confirm('Move this file to Recycle Bin?')) {
       try {
-        await deleteFile(id);
-        loadFiles(selectedFolder.id);
+        // USE THE SERVICE FUNCTION
+        await moveFileToTrash(id);
+
+        if (selectedFolder) {
+            loadFiles(selectedFolder.id);
+        }
         loadFolders();
       } catch (error) {
-        console.error('Error deleting file:', error);
+        console.error('Error moving file to trash:', error);
       }
     }
   };
+
+
   const handleFolderClick = (folder) => {
     setSelectedFolder(folder);
     loadFiles(folder.id);
@@ -528,10 +584,17 @@ function Dashboard({ user, userType }) {
                 New Folder
               </button>
               {selectedFolder && (
-                <button onClick={() => setShowUploadFile(true)} className="btn btn-secondary">
+                <button onClick={() => setShowUploadFile(true)} className="btn btn-primary">
                   Upload File
                 </button>
               )}
+
+               <button 
+            className="btn btn-primary" // Or whatever class you have
+            onClick={() => setShowRecycleBin(true)}
+          >
+            Recycle Bin 🗑️
+          </button>
             </div>
 
             <div className="content-layout">
@@ -919,6 +982,20 @@ function Dashboard({ user, userType }) {
         </div>
       )}
 
+      //ML
+      <RecycleBinModal 
+        isOpen={showRecycleBin}
+        onClose={() => setShowRecycleBin(false)}
+        user={user}
+        onRestore={() => {
+           loadFolders(); 
+           if (selectedFolder) {
+             setFiles([]); // Or reload files
+             setSelectedFolder(null);
+           }
+        }}
+      />
+
       {showUploadFile && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -1099,6 +1176,9 @@ function Dashboard({ user, userType }) {
         </div>
       )}
     </div>
+  
+  //ML
+  
   );
 }
 

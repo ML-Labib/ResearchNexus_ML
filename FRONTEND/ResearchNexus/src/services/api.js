@@ -163,4 +163,50 @@ export const getAnnouncements = () =>
 export const createAnnouncement = (announcementData) =>
   api.post('/announcements/create', announcementData);
 
+
+// ... (keep all your existing code) ...
+
+// ============= RECYCLE BIN APIs =============
+
+// 1. Get Trash Content
+export const getFolderTrash = (email) => {
+  return api.get(`/folders/trash/${email}`);
+};
+
+export const getFileTrash = (email) => {
+  return api.get(`/files/trash/${email}`);
+};
+
+// 2. Move to Trash (Soft Delete)
+export const moveFolderToTrash = (id) => {
+  return api.put(`/folders/trash/${id}`);
+};
+
+export const moveFileToTrash = (id) => {
+  return api.put(`/files/trash/${id}`);
+};
+
+// 3. Restore Items
+export const restoreFolder = (id) => {
+  return api.put(`/folders/restore/${id}`);
+};
+
+export const restoreFile = (id) => {
+  return api.put(`/files/restore/${id}`);
+};
+
+// 4. Permanent Delete
+export const deleteFolderPermanently = (id) => {
+  return api.delete(`/folders/permanent/${id}`);
+};
+
+export const deleteFilePermanently = (id) => {
+  return api.delete(`/files/permanent/${id}`);
+};
+
+export const summarizeText = (text) => {
+  return api.post('/ai/summarize', { text });
+};
+
+
 export default api;

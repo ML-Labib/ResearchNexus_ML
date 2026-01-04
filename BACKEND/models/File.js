@@ -31,6 +31,10 @@ const FileSchema = new mongoose.Schema({
   ownerEmail: {
     type: String,
     required: true
+  },
+  isTrashed: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

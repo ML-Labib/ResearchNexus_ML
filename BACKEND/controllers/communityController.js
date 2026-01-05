@@ -1,6 +1,7 @@
 const Question = require('../models/Question');
 const Answer = require('../models/Answer');
 
+
 // 1. Create a Question
 exports.createQuestion = async (req, res) => {
   try {
@@ -60,4 +61,47 @@ exports.toggleLike = async (req, res) => {
     await item.save();
     res.json({ likes: item.likes });
   } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
+
+
+
+// ... existing functions ...
+
+// 6. Delete Question (And all its answers)
+exports.deleteQuestion = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 1. Delete the Question
+    await Question.findByIdAndDelete(id);
+    
+    // 2. Delete all Answers linked to this question
+    await Answer.deleteMany({ questionId: id });
+    
+    res.json({ message: "Question and answers deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// 7. Delete Answer
+exports.deleteAnswer = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // 1. Find the answer to get the questionID (to update count)
+    const answer = await Answer.findById(id);
+    if (!answer) return res.status(404).json({ message: "Answer not found" });
+
+    // 2. Delete the answer
+    await Answer.findByIdAndDelete(id);
+
+    // 3. Decrease the answer count on the main question
+    await Question.findByIdAndUpdate(answer.questionId, { $inc: { answerCount: -1 } });
+
+    res.json({ message: "Answer deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };

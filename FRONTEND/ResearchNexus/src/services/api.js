@@ -214,6 +214,8 @@ export const getQuestionDetail = (id) => api.get(`/community/question/${id}`);
 export const postQuestion = (data) => api.post('/community/question', data);
 export const postAnswer = (data) => api.post('/community/answer', data);
 export const toggleLike = (data) => api.put('/community/like', data);
-
+// Add these to your community section
+export const deleteQuestion = (id) => api.delete(`/community/question/${id}`);
+export const deleteAnswer = (id) => api.delete(`/community/answer/${id}`);
 
 export default api;

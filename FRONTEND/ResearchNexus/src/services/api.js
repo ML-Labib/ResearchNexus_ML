@@ -170,15 +170,6 @@ export const getAnnouncements = () =>
 
 export const createAnnouncement = (announcementData) =>
   api.post('/announcements/create', announcementData);
-// ============= ACTIVITY / PRODUCTIVITY APIs =============
-
-// Log activity (add minutes to today's entry)
-export const logActivity = (userEmail, minutes = 1) =>
-  api.post('/activity/log', { email: userEmail, minutes });
-
-// Get weekly productivity summary
-export const getWeeklyProductivity = (userEmail) =>
-  api.get(`/activity/weekly/${userEmail}`);
 
 
 // ... (keep all your existing code) ...
@@ -224,6 +215,17 @@ export const deleteFilePermanently = (id) => {
 export const summarizeText = (text) => {
   return api.post('/ai/summarize', { text });
 };
+// ====================== ACTIVITY ======================
+// Update activity (add minutes to daily record)
+export const updateActivity = (email, minutesSpent = 1) =>
+  api.post("/activity/update", { email, minutesSpent });
 
+// Get weekly productivity summary for a student
+export const getWeeklyProductivity = (email) =>
+  api.get(`/activity/weekly/${email}`);
+
+// Get weekly leaderboard (top 5 students)
+export const getWeeklyLeaderboard = () =>
+  api.get("/activity/leaderboard/weekly");
 
 export default api;

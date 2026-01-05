@@ -39,6 +39,7 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const subAnnouncementRoutes = require('./routes/subannouncementRoutes');
 const siteRoutes = require('./routes/siteRoute');
 const aiRoutes = require('./routes/aiRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 // Use Routes
 app.use('/api/profile', profileRoutes);
@@ -47,6 +48,7 @@ app.use('/api/favorites', favoriteRoutes);
 
 
 //shagupta
+app.use('/api/activity', activityRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);

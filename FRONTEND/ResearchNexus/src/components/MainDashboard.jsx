@@ -8,7 +8,6 @@ import {
 import axios from "axios";
 import "../styles/MainDashboard.css";
 import brainImg from "../assets/brain.png";
-import { useActivityTracker } from "../hooks/useActivityTracker";
 
 const MainDashboard = ({ user, userType, onLogout }) => {
   const navigate = useNavigate();
@@ -24,26 +23,27 @@ const MainDashboard = ({ user, userType, onLogout }) => {
   // ================= REFS =================
   const timerRef = useRef(null);
 
-  // ================= ACTIVITY TRACKER =================
-  useActivityTracker(studentEmail, !!studentEmail);
-
-  // ================= LOAD SAVED SESSION =================
-  useEffect(() => {
-    const saved = localStorage.getItem("sessionSeconds");
-    if (saved) {
-      setSessionSeconds(parseInt(saved));
-    }
-  }, []);
-
-  // ================= REAL-TIME TIMER (STRICT MODE SAFE) =================
+  // ================= INIT SESSION START =================
   useEffect(() => {
     if (!studentEmail) return;
 
-    if (timerRef.current) return; // prevent double timer
+    let startTime = localStorage.getItem("sessionStartTime");
 
-    timerRef.current = setInterval(() => {
-      setSessionSeconds(prev => prev + 1);
-    }, 1000);
+    if (!startTime) {
+      startTime = Date.now();
+      localStorage.setItem("sessionStartTime", startTime);
+    }
+
+    const updateTimer = () => {
+      const seconds = Math.floor((Date.now() - startTime) / 1000);
+      setSessionSeconds(seconds);
+    };
+
+    updateTimer(); // immediate update
+
+    if (!timerRef.current) {
+      timerRef.current = setInterval(updateTimer, 1000);
+    }
 
     return () => {
       clearInterval(timerRef.current);
@@ -51,28 +51,12 @@ const MainDashboard = ({ user, userType, onLogout }) => {
     };
   }, [studentEmail]);
 
-  // ================= PERSIST SESSION =================
-  useEffect(() => {
-    localStorage.setItem("sessionSeconds", sessionSeconds);
-  }, [sessionSeconds]);
-
-  // ================= SAVE ACTIVITY EVERY 1 MINUTE =================
-  useEffect(() => {
-    if (!studentEmail) return;
-
-    if (sessionSeconds > 0 && sessionSeconds % 60 === 0) {
-      updateActivity(studentEmail, 1).catch(err =>
-        console.error("Activity update failed:", err)
-      );
-    }
-  }, [sessionSeconds, studentEmail]);
-
   // ================= WEEKLY SUMMARY =================
   const loadWeeklySummary = async () => {
     if (!studentEmail) return;
     try {
       const res = await getWeeklyProductivity(studentEmail);
-      setWeeklySummary(res.data.weeklySummary);
+      setWeeklySummary(res.data.weeklySummary || 0);
     } catch (err) {
       console.error("Weekly summary error:", err);
     }
@@ -86,7 +70,7 @@ const MainDashboard = ({ user, userType, onLogout }) => {
   const loadLeaderboard = async () => {
     try {
       const res = await getWeeklyLeaderboard();
-      setLeaderboard(res.data.leaderboard);
+      setLeaderboard(res.data.leaderboard || []);
     } catch (err) {
       console.error("Leaderboard error:", err);
     }
@@ -113,7 +97,7 @@ const MainDashboard = ({ user, userType, onLogout }) => {
   const loadAnnouncements = async () => {
     try {
       const res = await axios.get("http://localhost:9222/api/announcements");
-      setAnnouncements(res.data.announcements);
+      setAnnouncements(res.data.announcements || []);
     } catch (err) {
       console.error("Announcements error:", err);
     }
@@ -126,18 +110,25 @@ const MainDashboard = ({ user, userType, onLogout }) => {
 
   // ================= LOGOUT =================
   const handleLogout = async () => {
-    if (studentEmail && sessionSeconds > 0) {
-      const minutes = Math.floor(sessionSeconds / 60);
-      if (minutes > 0) {
-        await updateActivity(studentEmail, minutes);
+    try {
+      const startTime = localStorage.getItem("sessionStartTime");
+      if (studentEmail && startTime) {
+        const totalSeconds = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        if (minutes > 0) {
+          await updateActivity(studentEmail, minutes);
+        }
       }
+    } catch (err) {
+      console.error("Logout activity save failed:", err);
     }
 
     clearInterval(timerRef.current);
     timerRef.current = null;
 
-    localStorage.removeItem("sessionSeconds");
+    localStorage.removeItem("sessionStartTime");
     setSessionSeconds(0);
+
     onLogout();
   };
 
@@ -191,7 +182,9 @@ const MainDashboard = ({ user, userType, onLogout }) => {
           )}
 
           <li>
-            <button className="btn-logout" onClick={handleLogout}>Logout</button>
+            <button className="btn-logout" onClick={handleLogout}>
+              Logout
+            </button>
           </li>
         </ul>
       </nav>

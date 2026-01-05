@@ -12,6 +12,8 @@ import SubAnnouncement from './components/SubAnnouncement';
 import PlanCycle from './components/PlanCycle';
 import SitesPage from './components/SitesPage';
 import ResearchTool from './components/ResearchTool';
+import Community from './components/Community';
+import QuestionDetail from './components/QuestionDetail';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -132,6 +134,9 @@ function App() {
           <Navigate to="/maindashboard" replace />
         )}
       />
+
+      <Route path="/community" element={<Community user={user} />} />
+  <Route path="/community/:id" element={<QuestionDetail user={user} />} />
 
 
 

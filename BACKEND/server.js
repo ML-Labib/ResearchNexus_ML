@@ -37,6 +37,7 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const subAnnouncementRoutes = require('./routes/subannouncementRoutes');
 const siteRoutes = require('./routes/siteRoute');
 const aiRoutes = require('./routes/aiRoutes');
+const communityRoutes = require('./routes/communityRoutes');
 
 // Use Routes
 app.use('/api/profile', profileRoutes);
@@ -65,5 +66,7 @@ app.use("/api/routines", routineRoutes);
 //ML
 app.use("/api/sites", siteRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/community', communityRoutes);
+
 const PORT = process.env.PORT || 9222;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

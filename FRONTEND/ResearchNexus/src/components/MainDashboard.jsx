@@ -77,9 +77,9 @@ const MainDashboard = ({ user, userType, onLogout }) => {
           <li>
             <button onClick={() => navigate('/tools')}>Research Tool</button>
           </li>
-          <li>
-            <Link to="/community">Community</Link>
-          </li>
+         <button className="btn-profile" onClick={() => navigate("/community")}>
+    Community
+</button>
           <li>
             <button className="btn-profile" onClick={() => navigate("/profile")}>
               Profile

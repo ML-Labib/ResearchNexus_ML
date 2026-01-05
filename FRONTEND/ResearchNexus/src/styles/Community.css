@@ -1,0 +1,166 @@
+/* Container */
+.community-container {
+  padding: 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: #f4f6f8;
+  min-height: 100vh;
+}
+
+.community-container h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Ask Button */
+.ask-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 25px;
+  cursor: pointer;
+  margin-bottom: 30px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.ask-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Question List */
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Individual Question Card */
+.question-card {
+  display: flex;
+  background: white;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.question-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-color: #d1d5da;
+}
+
+/* Vote Section (Left Side) */
+.vote-box {
+  background-color: #f8f9fa;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-right: 1px solid #eee;
+  border-radius: 8px 0 0 8px;
+}
+
+.vote-box button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+  padding: 0;
+  margin-bottom: 5px;
+}
+
+.vote-box button:hover {
+  color: #ff4500; /* Reddit Orange for upvote hover */
+}
+
+.vote-box span {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Question Content (Right Side) */
+.q-content {
+  padding: 15px;
+  flex: 1;
+}
+
+.q-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #0079d3;
+}
+
+.q-content p {
+  margin: 0;
+  font-size: 13px;
+  color: #777;
+}
+
+/* --- MODAL STYLES --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.modal-content input, 
+.modal-content textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  box-sizing: border-box; /* Ensures padding doesn't break width */
+}
+
+.modal-content textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.modal-content button {
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+/* Post Button */
+.modal-content button:nth-of-type(1) {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Cancel Button */
+.modal-content button:nth-of-type(2) {
+  background-color: #e2e6ea;
+  color: #333;
+}

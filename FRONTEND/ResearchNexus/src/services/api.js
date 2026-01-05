@@ -208,5 +208,12 @@ export const summarizeText = (text) => {
   return api.post('/ai/summarize', { text });
 };
 
+// Community APIs
+export const getQuestions = () => api.get('/community/questions');
+export const getQuestionDetail = (id) => api.get(`/community/question/${id}`);
+export const postQuestion = (data) => api.post('/community/question', data);
+export const postAnswer = (data) => api.post('/community/answer', data);
+export const toggleLike = (data) => api.put('/community/like', data);
+
 
 export default api;

@@ -4,7 +4,7 @@
 const { GoogleGenAI } = require("@google/genai");
 
 // 2. Setup the Client (Hardcoding key to be safe based on previous errors)
-const GOOGLE_API_KEY = "AIzaSyANSQZKdNhj1ygcY-C5P1wY0MHN1h_esOo"; 
+const GOOGLE_API_KEY = process.env.AI_API_KEY; 
 
 const ai = new GoogleGenAI({ apiKey: GOOGLE_API_KEY });
 

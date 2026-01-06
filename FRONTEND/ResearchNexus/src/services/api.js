@@ -15,6 +15,14 @@ export const login = (email, userType) => {
   return api.post('/auth/login', { email, userType });
 };
 
+// ===== STUDENT DASHBOARD APIs =====
+export const getAllStudents = () =>
+  api.get('/students');
+
+export const removeStudent = (id) =>
+  api.delete(`/students/${id}`);
+
+
 export const registerSupervisor = (data) => {
   return api.post('/auth/register/supervisor', data);
 };
@@ -146,7 +154,7 @@ export const uploadDocument = (formData) =>
 
 
 
-  // ⭐ FAVORITES APIs
+  // ⭐ FAVORITES APIs //shagupta
 export const addFavorite = (fileId, userEmail) =>
   api.post('/favorites', { fileId, userEmail });
 
@@ -217,5 +225,17 @@ export const toggleLike = (data) => api.put('/community/like', data);
 // Add these to your community section
 export const deleteQuestion = (id) => api.delete(`/community/question/${id}`);
 export const deleteAnswer = (id) => api.delete(`/community/answer/${id}`);
+// ====================== ACTIVITY ======================
+// Update activity (add minutes to daily record)
+export const updateActivity = (email, minutesSpent = 1) =>
+  api.post("/activity/update", { email, minutesSpent });
+
+// Get weekly productivity summary for a student
+export const getWeeklyProductivity = (email) =>
+  api.get(`/activity/weekly/${email}`);
+
+// Get weekly leaderboard (top 5 students)
+export const getWeeklyLeaderboard = () =>
+  api.get("/activity/leaderboard/weekly");
 
 export default api;

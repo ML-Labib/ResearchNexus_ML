@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getProfile, updateProfile } from '../services/api';
+import '../styles/Profile.css';
 
 function Profile({ user, userType }) {
   const [profile, setProfile] = useState(null);
@@ -14,6 +15,8 @@ function Profile({ user, userType }) {
     });
   }, [user, userType]);
 
+
+  
   const handleUpdate = async () => {
     await updateProfile({
       email: user.Gmail,
@@ -23,11 +26,16 @@ function Profile({ user, userType }) {
     });
     alert('Profile updated');
   };
+  if (!profile) return <p className="profile-loading">Loading...</p>;
 
-  if (!profile) return <p>Loading...</p>;
+
+
+
 
   return (
-    <div style={{ padding: '30px' }}>
+    <div className="profile-container">
+    <div className="profile-card">
+
       <h2>Profile</h2>
 
       <p><b>Name:</b> {profile.Name}</p>
@@ -48,7 +56,11 @@ function Profile({ user, userType }) {
 
       <button onClick={handleUpdate}>Update Profile</button>
     </div>
+    </div>
   );
 }
+
+
+
 
 export default Profile;

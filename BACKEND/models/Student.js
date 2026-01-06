@@ -8,8 +8,16 @@ const StudentSchema = new mongoose.Schema({
 
   studentId: { type: String, required: true },
   phone: { type: String, default: '' },
-  address: { type: String, default: '' }
-
+  address: { type: String, default: '' },
+    // New fields for activity tracking
+  dailyActivity: [
+    {
+      date: { type: String }, // YYYY-MM-DD
+      minutesSpent: { type: Number, default: 0 }
+    }
+  ],
+  weeklySummary: { type: Number, default: 0 } // total minutes for last 7 days
 }, { timestamps: true });
+
 
 module.exports = mongoose.model('Student', StudentSchema);

@@ -1,0 +1,102 @@
+/* PROFILE PAGE CONTAINER */
+.profile-container {
+  min-height: 100vh;
+  background: #8db1f0; /* Same as dashboard */
+  width: 100vw;
+  padding: 40px;
+  font-family: "Georgia", serif;
+  color: white;
+}
+
+
+
+
+
+/* PROFILE CARD */
+.profile-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #587596; /* Header color */
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* TITLE */
+.profile-card h2 {
+  margin-bottom: 25px;
+  font-size: 28px;
+  text-align: center;
+  color: #ffffff;
+}
+
+
+
+
+
+
+/* INFO TEXT */
+.profile-card p {
+  margin: 10px 0;
+  font-size: 15px;
+  color: #e6ecf5;
+}
+
+.profile-card p b {
+  color: #ffffff;
+}
+
+/* LABELS */
+.profile-card label {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 6px;
+  font-size: 14px;
+  color: #dbe4f3;
+}
+
+/* INPUT FIELDS */
+.profile-card input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: "Georgia", serif;
+  background: #e9eef6;
+  color: #000000;
+}
+
+/* INPUT FOCUS */
+.profile-card input:focus {
+  box-shadow: 0 0 0 2px #1e90ff;
+}
+
+/* UPDATE BUTTON */
+.profile-card button {
+  margin-top: 25px;
+  width: 100%;
+  padding: 12px;
+  background: #1e90ff; /* Dashboard nav blue */
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: "Georgia", serif;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* BUTTON HOVER */
+.profile-card button:hover {
+  background: #0b3c91;
+}
+
+/* LOADING TEXT */
+.profile-loading {
+  color: white;
+  text-align: center;
+  padding-top: 60px;
+  font-size: 18px;
+}

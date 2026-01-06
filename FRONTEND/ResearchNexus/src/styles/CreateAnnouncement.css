@@ -1,0 +1,77 @@
+/* PAGE BACKGROUND */
+.create-announcement-container {
+  min-height: 100vh;
+  width: 100vw;
+  background: #7199df; /* Dashboard background */
+  padding: 40px;
+  font-family: "Georgia", serif;
+  color: white;
+}
+
+/* CARD */
+.create-announcement-card {
+  max-width: 650px;
+  margin: 0 auto;
+  background: #587596; /* Dashboard header color */
+  padding: 30px 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* TITLE */
+.create-announcement-card h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 28px;
+}
+
+/* FORM */
+.create-announcement-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* INPUT & TEXTAREA */
+.create-announcement-form input,
+.create-announcement-form textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: "Georgia", serif;
+  background: #e9eef6;
+  color: black;
+}
+
+/* TEXTAREA HEIGHT */
+.create-announcement-form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* FOCUS */
+.create-announcement-form input:focus,
+.create-announcement-form textarea:focus {
+  box-shadow: 0 0 0 2px #1e90ff;
+}
+
+/* BUTTON */
+.create-announcement-form button {
+  margin-top: 10px;
+  padding: 12px;
+  background: #1e90ff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: "Georgia", serif;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* BUTTON HOVER */
+.create-announcement-form button:hover {
+  background: #0b3c91;
+}

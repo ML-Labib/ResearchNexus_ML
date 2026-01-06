@@ -1,0 +1,85 @@
+body {
+    background-color: #F0F3FA;
+}
+
+.students-container {
+    padding: 30px;
+}
+
+.students-container h2 {
+    color: #395886;
+    margin-bottom: 20px;
+    font-size: 26px;
+}
+
+.students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.student-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+    transition: all 0.25s ease;
+}
+
+.student-card:hover {
+    transform: translateY(-6px);
+}
+
+.student-card h3 {
+    color: #395886;
+    margin-bottom: 12px;
+}
+
+.student-card p {
+    margin: 6px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.search-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 2px solid #8AAEE0;
+    font-size: 14px;
+    outline: none;
+}
+
+.search-box:focus {
+    border-color: #395886;
+}
+
+.no-results {
+    color: #395886;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.remove-btn {
+    margin-top: 14px;
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background-color: #395886;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.remove-btn:hover {
+    background-color: #8AAEE0;
+}
+
+.loading {
+    text-align: center;
+    font-size: 18px;
+    color: #395886;
+}

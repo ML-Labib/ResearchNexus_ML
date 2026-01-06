@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import SubAnnouncement from './SubAnnouncement';
 import PlanCycle from './PlanCycle';
 import RecycleBinModal from './RecycleBinModal';
+import ViolanceControlPanel from './ViolanceControlPanel';
+
 import {
   createFolder,
   getFolders,
@@ -110,7 +112,7 @@ function Dashboard({ user, userType }) {
   const [previewFileUrl, setPreviewFileUrl] = useState('');
   const [previewFileName, setPreviewFileName] = useState('');
 
-  useEffect(() => {
+  useEffect(() => { //shagupta
     const fetchFavorites = async () => {
       try {
         const response = await fetch(`http://localhost:9222/api/favorites/${user.Gmail}`);
@@ -121,7 +123,7 @@ function Dashboard({ user, userType }) {
       }
     };
     fetchFavorites();
-    loadFolders();
+    loadFolders(); //
     if (userType === 'supervisor') {
       setAvailableGroups(user.groups || []);
       setFolderGroupId(user.groups?.[0] || '');
@@ -137,7 +139,7 @@ function Dashboard({ user, userType }) {
     }
   }, []);
 
-  const toggleFavorite = async (fileId) => {
+  const toggleFavorite = async (fileId) => { //s
     try {
       await fetch('http://localhost:9222/api/favorites/toggle', {
         method: 'POST',
@@ -151,7 +153,9 @@ function Dashboard({ user, userType }) {
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
-  };
+  };//
+
+
 
   //ML
     // 3. ADD THIS REFRESH FUNCTION
@@ -464,7 +468,6 @@ function Dashboard({ user, userType }) {
     }
   };
 
-  // ... (all other existing functions like handleCreateFolder, handleUploadFile, handleSearch, handleDeleteFolder, handleEditFolder, handleUpdateFolder, handleDownloadFile, handleDeleteFile, handleViewPreviewFile, handleDownloadPreviewFile, loadStudentTasks, handleCheckboxChange, handleAssignTask, loadProfessorWorks, handleSubmitFeedback, loadStudentFeedbacks, handleSubmitWork remain exactly the same)
 
   const percentage = tasks.length > 0 ? (completedCount / tasks.length) * 100 : 0;
 
@@ -502,6 +505,7 @@ function Dashboard({ user, userType }) {
             >
               🎤 Announcement
             </button>
+
             <button
               onClick={() => setActiveTab('tasks')}
               className={`nav-tab ${activeTab === 'tasks' ? 'active' : ''}`}
@@ -513,6 +517,12 @@ function Dashboard({ user, userType }) {
               className={`nav-tab ${activeTab === 'submissions' ? 'active' : ''}`}
             >
               📝 Review Submissions
+            </button>
+            <button
+              onClick={() => setActiveTab('students')}
+              className={`nav-tab ${activeTab === 'students' ? 'active' : ''}`}
+            >
+              🎓 Violance Control Panel
             </button>
           </>
         ) : (
@@ -558,6 +568,9 @@ function Dashboard({ user, userType }) {
             <h2>🧭 Plan Cycle</h2>
             <PlanCycle groupId={user.Group_id} />
           </div>
+        )}
+        {activeTab === 'students' && userType === 'supervisor' && (
+          <ViolanceControlPanel />
         )}
 
         {/* ANNOUNCEMENT TAB */}
@@ -648,7 +661,7 @@ function Dashboard({ user, userType }) {
                             {file.Visibility ? '🌐 Public' : '🔒 Private'}
                           </div>
                           <div className="file-actions">
-                            <button
+                            <button //shagupta
                               onClick={() => toggleFavorite(file.id)}
                               className="btn btn-secondary btn-small"
                             >
@@ -989,11 +1002,11 @@ function Dashboard({ user, userType }) {
         onClose={() => setShowRecycleBin(false)}
         user={user}
         onRestore={() => {
-           loadFolders(); 
-           if (selectedFolder) {
-             setFiles([]); // Or reload files
-             setSelectedFolder(null);
-           }
+          loadFolders();
+          if (selectedFolder) {
+            setFiles([]); // Or reload files
+            setSelectedFolder(null);
+          }
         }}
       />
 

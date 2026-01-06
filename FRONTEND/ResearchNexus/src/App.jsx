@@ -15,6 +15,7 @@ import ResearchTool from './components/ResearchTool';
 import Community from './components/Community';
 import QuestionDetail from './components/QuestionDetail';
 
+import ViolanceControlPanel from './components/ViolanceControlPanel';
 function App() {
   const [user, setUser] = useState(null);
   const [userType, setUserType] = useState(null);
@@ -94,6 +95,11 @@ function App() {
 />
 
       <Route
+        path="/tools"
+        element={user ? <ResearchTool /> : <Navigate to="/login" />}
+      />
+
+      <Route
         path="/files"
         element={
           user ? (
@@ -139,16 +145,25 @@ function App() {
   <Route path="/community/:id" element={<QuestionDetail user={user} />} />
 
 
+      <Route
+        path="/students"
+        element={user ? <ViolanceControlPanel /> : <Navigate to="/login" replace />}
+      />
+
+
+
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
         <Route
+     
         path="/sites"
         element={user ? <SitesPage user={user} /> : <Navigate to="/login" replace />}
       />
 
     </Routes>
     
+
   );
 }
 

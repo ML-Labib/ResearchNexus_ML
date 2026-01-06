@@ -23,6 +23,8 @@ connectDB();
 const profileRoutes = require('./routes/profileRoutes'); 
 const notePadRoutes = require("./routes/notePadRoutes");
 const favoriteRoutes = require('./routes/favoriteRoutes');
+const studentRoutes = require('./routes/studentRoutes');
+
 
 // shagupta
 const routineRoutes = require("./routes/routineRoutes");
@@ -38,6 +40,7 @@ const subAnnouncementRoutes = require('./routes/subannouncementRoutes');
 const siteRoutes = require('./routes/siteRoute');
 const aiRoutes = require('./routes/aiRoutes');
 const communityRoutes = require('./routes/communityRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 // Use Routes
 app.use('/api/profile', profileRoutes);
@@ -46,6 +49,7 @@ app.use('/api/favorites', favoriteRoutes);
 
 
 //shagupta
+app.use('/api/activity', activityRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
@@ -53,8 +57,7 @@ app.use('/api/files', fileRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/preview', previewRoutes);
-
-
+app.use('/api/students', studentRoutes);
 
 app.use("/api/maindashboard", maindashboardRoutes);
 app.use("/api/notepads", notePadRoutes);

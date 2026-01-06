@@ -5,8 +5,8 @@ const Answer = require('../models/Answer');
 // 1. Create a Question
 exports.createQuestion = async (req, res) => {
   try {
-    const { title, content, authorName, authorEmail } = req.body;
-    const newQ = await Question.create({ title, content, authorName, authorEmail });
+    const { title, category, content, authorName, authorEmail } = req.body;
+    const newQ = await Question.create({ title, category, content, authorName, authorEmail });
     res.status(201).json(newQ);
   } catch (err) { res.status(500).json({ error: err.message }); }
 };

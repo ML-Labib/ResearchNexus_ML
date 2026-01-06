@@ -58,6 +58,7 @@ const Community = ({ user }) => {
           <div className="modal-content">
             <h3>Ask the Community</h3>
             <input placeholder="Title" value={newQ.title} onChange={e => setNewQ({...newQ, title: e.target.value})} />
+            <input placeholder="Category" value={newQ.category} onChange={e => setNewQ({...newQ, category: e.target.value})} />
             <textarea placeholder="Details..." value={newQ.content} onChange={e => setNewQ({...newQ, content: e.target.value})} />
             <button onClick={handleAsk}>Post</button>
             <button onClick={() => setShowModal(false)}>Cancel</button>
